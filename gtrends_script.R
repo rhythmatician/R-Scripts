@@ -1,30 +1,15 @@
+##These functions are useful for getting data from Google Trends.
+
+##There are a couple of issues getting lots of data from Google Trends. If you get data from more than 5 years at a time it only provides monthly data instead of weekly data.  You can run multiple queires to get around this, but for some reason the data doesn't line up perfectly.  This script gets around that by running multiple overlapping queries then using the least squares method on the overlap to find a reasonably good compromise to the descrepancies, before reiterating this process to the beginning of the specified time frame.
+##This script is specifically for getting weekly data, but could be fairly easily adapted to get daily values instead.
+##The optimise() function used here is probably a bit overkill for the least squares method.  Finding the root of the derivative would probably make more sense to make this script a bit more efficient.
+
 ###load packages
 library(gtrendsR)
 library(lubridate)
 library(stats)
 library(tidyr)
 library(DataCombine)
-
-#Predictive R Squared function
-PRESS <- function(linear.model) {
-  #' calculate the predictive residuals
-  pr <- residuals(linear.model)/(1-lm.influence(linear.model)$hat)
-  #' calculate the PRESS
-  PRESS <- sum(pr^2)
-  
-  return(PRESS)
-}
-
-pred_r_squared <- function(linear.model) {
-  #' Use anova() to get the sum of squares for the linear model
-  lm.anova <- anova(linear.model)
-  #' Calculate the total sum of squares
-  tss <- sum(lm.anova$'Sum Sq')
-  # Calculate the predictive R^2
-  pred.r.squared <- 1-PRESS(linear.model)/(tss)
-  
-  return(pred.r.squared)
-}
 
 #This function replaces "<1" with "0" then coerces the values to Date or Integer before finally pivoting the data.
 CleanReshape <- function(variable.df) {
